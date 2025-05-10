@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>フィットネスジム予約フォーム</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div id="formContainer" class="w-full max-w-md">
+    <form id="reservationForm" class="bg-white p-8 rounded shadow-md">
+      <h2 class="text-2xl font-bold mb-6 text-center">予約フォーム</h2>
+      <div class="mb-4">
+        <label class="block text-gray-700">メールアドレス</label>
+        <input type="email" name="email" required class="w-full mt-1 p-2 border rounded" />
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">氏名</label>
+        <input type="text" name="name" required class="w-full mt-1 p-2 border rounded" />
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">設備名</label>
+        <select name="facility" required class="w-full mt-1 p-2 border rounded">
+          <option value="フリーマット">フリーマット</option>
+          <option value="フィットネス">フィットネス</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">予約開始日時</label>
+        <input type="datetime-local" name="start" required class="w-full mt-1 p-2 border rounded" />
+      </div>
+      <div class="mb-6">
+        <label class="block text-gray-700">予約終了日時</label>
+        <input type="datetime-local" name="end" required class="w-full mt-1 p-2 border rounded" />
+      </div>
+      <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">予約する</button>
+    </form>
+
+    <div id="successMessage" class="hidden bg-white p-8 mt-6 rounded shadow-md text-center">
+      <h2 class="text-2xl font-bold text-green-600 mb-4">予約が完了しました！</h2>
+      <p class="mb-4">
+        カレンダーへのリンク: <a id="calendarLink" href="#" target="_blank" class="text-blue-600 underline">表示する</a>
+      </p>
+      <button id="newReservation" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+        続けて予約する
+      </button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('reservationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        email: form.email.value,
+        name: form.name.value,
+        facility: form.facility.value,
+        start: form.start.value,
+        end: form.end.value,
+      };
+
+      try {
+        const response = await fetch('https://script.google.com/macros/s/あなたのデプロイURL/exec', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          document.getElementById('reservationForm').classList.add('hidden');
+          document.getElementById('successMessage').classList.remove('hidden');
+          document.getElementById('calendarLink').href = 'https://calendar.google.com/calendar/u/0/r';
+        } else {
+          alert(result.message || '予約に失敗しました。');
+        }
+      } catch (error) {
+        alert('通信エラーが発生しました。');
+        console.error(error);
+      }
+    });
+
+    document.getElementById('newReservation').addEventListener('click', () => {
+      document.getElementById('reservationForm').classList.remove('hidden');
+      document.getElementById('successMessage').classList.add('hidden');
+      document.getElementById('reservationForm').reset();
+    });
+  </script>
+</body>
+</html>
